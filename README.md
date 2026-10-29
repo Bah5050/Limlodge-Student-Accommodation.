@@ -14,6 +14,30 @@ Open `index.html` in a web browser. Fonts and photos are loaded online, so those
 - Open each listing for facilities and details
 - Mobile navigation and a demo email form
 
+## Website screenshots
+
+The screenshots below show the main sections of the LIMLODGE website.
+
+### Homepage and room search
+
+![LIMLODGE homepage and room search](homepage.png)
+
+### Student room listings
+
+![LIMLODGE student room listings](room-listings.png)
+
+### About LIMLODGE
+
+![About LIMLODGE section](about-limlodge.png)
+
+### How it works
+
+![How it works section](how-it-works.png)
+
+### Contact and footer
+
+![LIMLODGE contact and footer](contact-footer.png)
+
 ## Before publishing or submitting
 
 The room listings, rents, locations, facilities, campus labels, photos and contact address are sample content for demonstrating the layout. Verify them and replace them with accurate information. All rents are illustrative and shown in Leones (Le). The Bank of Sierra Leone identifies the Leone and the symbol Le as Sierra Leone's currency. The contact email uses a reserved example address and must be replaced. The email form currently demonstrates the interface only; it does not collect or send addresses.
