@@ -17,59 +17,75 @@ const homes = [
 const grid = document.querySelector('#listing-grid');
 const toast = document.querySelector('#toast');
 const dialog = document.querySelector('#home-dialog');
+const page = document.body.dataset.page;
 let selectedFilter = 'All';
 let searchTerm = '';
+let minPrice = 0;
+let maxPrice = Infinity;
+let facilityTerm = '';
 let showAll = false;
 let sortPrice = false;
 const saved = new Set(JSON.parse(localStorage.getItem('limlodge-saved') || '[]'));
 
 function visibleHomes() {
   let list = homes.filter(home => (selectedFilter === 'All' || home.type === selectedFilter) &&
-    (!searchTerm || `${home.city} ${home.area} ${home.name} ${home.campus}`.toLowerCase().includes(searchTerm.toLowerCase())));
+    home.price >= minPrice && home.price <= maxPrice &&
+    (!searchTerm || `${home.city} ${home.area} ${home.name} ${home.campus}`.toLowerCase().includes(searchTerm.toLowerCase())) &&
+    (!facilityTerm || home.features.join(' ').toLowerCase().includes(facilityTerm.toLowerCase())));
   if (sortPrice) list = [...list].sort((a,b) => a.price - b.price);
+  if (page === 'home') return list.slice(0,3);
   return showAll ? list : list.slice(0,6);
 }
 
 function card(home) {
-  return `<article class="listing-card" data-home="${home.id}" tabindex="0" aria-label="View ${home.name} details">
+  return `<article class="listing-card" data-home="${home.id}">
     <div class="listing-photo"><img src="${home.image}" alt="Example room for ${home.name}" loading="lazy"><span class="listing-tag">${home.type.toUpperCase()} ROOM</span>
       <button class="save-button ${saved.has(home.id)?'saved':''}" data-save="${home.id}" aria-label="${saved.has(home.id)?'Remove':'Save'} ${home.name}" aria-pressed="${saved.has(home.id)}">${saved.has(home.id)?'♥':'♡'}</button></div>
     <div class="listing-info"><div class="listing-topline"><span class="listing-name">${home.name}</span><span class="listing-rating">${home.rating}</span></div><div class="listing-location">${home.area}, ${home.city}</div>
-      <div class="listing-meta"><span>${home.campus}</span><span>Ask about availability</span></div><div class="listing-price"><b>Le ${home.price.toLocaleString()}</b> / ${home.period}<span>Example rent</span></div></div></article>`;
+      <div class="listing-meta"><span>${home.campus}</span><span>Example listing</span></div><div class="listing-price"><b>Le ${home.price.toLocaleString()}</b> / ${home.period}<span>Example rent</span></div><div class="room-facilities"><b>Facilities</b><span>${home.features.join(' · ')}</span></div><p class="provider-note">Provider contact: Not supplied for sample listing.</p><button class="view-details button button-outline" type="button" data-details="${home.id}">View room details <span>↗</span></button></div></article>`;
 }
 
 function renderHomes() {
+  if (!grid) return;
   const list = visibleHomes();
-  grid.innerHTML = list.length ? list.map(card).join('') : '<div class="empty-state">No rooms match that search yet.<br>Try another town or room type.</div>';
-  document.querySelector('#shown-count').textContent = list.length;
-  document.querySelector('#load-more').style.display = (showAll || list.length < 6) ? 'none' : 'inline-flex';
+  grid.innerHTML = list.length ? list.map(card).join('') : '<div class="empty-state">No rooms match that search yet.<br>Try another location, price or facility.</div>';
+  const count = document.querySelector('#shown-count');
+  const loadMore = document.querySelector('#load-more');
+  if (count) count.textContent = list.length;
+  if (loadMore) loadMore.style.display = (showAll || visibleHomes().length < 6 || page === 'home') ? 'none' : 'inline-flex';
 }
 
-grid.addEventListener('click', event => {
-  const saveButton = event.target.closest('[data-save]');
-  if (saveButton) {
-    event.stopPropagation();
-    const id = Number(saveButton.dataset.save);
-    saved.has(id) ? saved.delete(id) : saved.add(id);
-    localStorage.setItem('limlodge-saved', JSON.stringify([...saved]));
-    renderHomes();
-    showToast(saved.has(id) ? 'Room saved to your list.' : 'Room removed from your list.');
-    return;
-  }
-  const item = event.target.closest('[data-home]');
-  if (item) openHome(Number(item.dataset.home));
-});
-grid.addEventListener('keydown', event => { if ((event.key === 'Enter' || event.key === ' ') && event.target.matches('[data-home]')) { event.preventDefault(); openHome(Number(event.target.dataset.home)); } });
+if (grid) {
+  grid.addEventListener('click', event => {
+    const saveButton = event.target.closest('[data-save]');
+    if (saveButton) {
+      event.stopPropagation();
+      const id = Number(saveButton.dataset.save);
+      const wasSaved = saved.has(id);
+      wasSaved ? saved.delete(id) : saved.add(id);
+      localStorage.setItem('limlodge-saved', JSON.stringify([...saved]));
+      renderHomes();
+      showToast(wasSaved ? 'Room removed from your list.' : 'Room saved to your list.');
+      return;
+    }
+    const detailsButton = event.target.closest('[data-details]');
+    if (detailsButton) { openHome(Number(detailsButton.dataset.details)); return; }
+    const item = event.target.closest('[data-home]');
+    if (item) openHome(Number(item.dataset.home));
+  });
+}
 
 function openHome(id) {
   const home = homes.find(item => item.id === id);
-  document.querySelector('#dialog-content').innerHTML = `<div class="dialog-layout"><img class="dialog-image" src="${home.image}" alt="Example room interior"><div class="dialog-details"><div class="eyebrow"><span class="eyebrow-line"></span> ${home.type.toUpperCase()} · ${home.city.toUpperCase()}</div><h2 class="listing-name">${home.name}</h2><p>${home.description}</p><ul>${home.features.map(feature=>`<li>${feature}</li>`).join('')}</ul><p><b>Example rent: Le ${home.price.toLocaleString()} / month</b></p><p class="sample-note">This is sample listing information. Confirm the actual rent, availability, facilities and address with the provider.</p><button class="dialog-contact">Ask about this room ↗</button></div></div>`;
+  if (!dialog || !home) return;
+  document.querySelector('#dialog-content').innerHTML = `<div class="dialog-layout"><img class="dialog-image" src="${home.image}" alt="Example room interior"><div class="dialog-details"><div class="eyebrow"><span class="eyebrow-line"></span> ${home.type.toUpperCase()} · ${home.city.toUpperCase()}</div><h2 class="listing-name">${home.name}</h2><p>${home.description}</p><ul>${home.features.map(feature=>`<li>${feature}</li>`).join('')}</ul><p><b>Example rent: Le ${home.price.toLocaleString()} / month</b></p><p><b>Location:</b> ${home.area}, ${home.city} · ${home.campus}</p><p class="sample-note">Sample listing only. Provider contact details have not been supplied. Confirm the actual rent, availability, facilities and address with the provider before making arrangements.</p><a class="dialog-contact" href="contact.html">View LIMLODGE contact page ↗</a></div></div>`;
   dialog.showModal();
 }
 
-document.querySelector('.dialog-close').addEventListener('click', () => dialog.close());
-dialog.addEventListener('click', event => { if (event.target === dialog) dialog.close(); });
-dialog.addEventListener('click', event => { if (event.target.matches('.dialog-contact')) { dialog.close(); showToast('Add the provider’s contact details here before publishing.'); } });
+if (dialog) {
+  document.querySelector('.dialog-close').addEventListener('click', () => dialog.close());
+  dialog.addEventListener('click', event => { if (event.target === dialog) dialog.close(); });
+}
 
 document.querySelectorAll('.filter-button').forEach(button => button.addEventListener('click', () => {
   selectedFilter = button.dataset.filter;
@@ -77,46 +93,79 @@ document.querySelectorAll('.filter-button').forEach(button => button.addEventLis
   showAll = false; renderHomes();
 }));
 
-document.querySelector('#search-form').addEventListener('submit', event => {
+const searchForm = document.querySelector('#search-form');
+if (searchForm) searchForm.addEventListener('submit', event => {
   event.preventDefault();
   searchTerm = document.querySelector('#location').value.trim();
-  const selectedType = document.querySelector('#type').value;
-  selectedFilter = selectedType || 'All';
+  const type = document.querySelector('#type').value;
+  selectedFilter = type || 'All';
+  const minField = document.querySelector('#min-price');
+  minPrice = minField && minField.value ? Number(minField.value) : 0;
+  const priceField = document.querySelector('#max-price');
+  maxPrice = priceField && priceField.value ? Number(priceField.value) : Infinity;
+  const facilitiesField = document.querySelector('#facilities');
+  facilityTerm = facilitiesField ? facilitiesField.value.trim() : '';
   document.querySelectorAll('.filter-button').forEach(button => button.classList.toggle('selected', button.dataset.filter === selectedFilter));
   showAll = true; renderHomes();
   document.querySelector('#rooms').scrollIntoView({behavior:'smooth'});
-  if (document.querySelector('#movein').value) showToast(`Rooms for ${document.querySelector('#movein').value} are shown as a sample.`);
 });
 
-document.querySelector('#sort-button').addEventListener('click', event => {
+if (page === 'rooms' && typeof window !== 'undefined') {
+  const initialSearch = new URLSearchParams(window.location.search).get('location');
+  if (initialSearch) {
+    document.querySelector('#location').value = initialSearch;
+    searchTerm = initialSearch.trim();
+    showAll = true;
+  }
+}
+
+const sortButton = document.querySelector('#sort-button');
+if (sortButton) sortButton.addEventListener('click', event => {
   sortPrice = !sortPrice;
   event.currentTarget.querySelector('span').textContent = sortPrice ? 'Example rent: low to high⌄' : 'Recommended⌄';
   renderHomes();
 });
-document.querySelector('#load-more').addEventListener('click', () => { showAll = true; renderHomes(); });
+const loadMore = document.querySelector('#load-more');
+if (loadMore) loadMore.addEventListener('click', () => { showAll = true; renderHomes(); });
 
-document.querySelector('.menu-toggle').addEventListener('click', event => {
+const menuToggle = document.querySelector('.menu-toggle');
+if (menuToggle) menuToggle.addEventListener('click', event => {
   const nav = document.querySelector('.main-nav');
   const open = nav.classList.toggle('open');
   event.currentTarget.setAttribute('aria-expanded', String(open));
 });
 document.querySelectorAll('.main-nav a').forEach(link => link.addEventListener('click', () => {
   document.querySelector('.main-nav').classList.remove('open');
-  document.querySelector('.menu-toggle').setAttribute('aria-expanded','false');
+  if (menuToggle) menuToggle.setAttribute('aria-expanded','false');
 }));
+const currentPage = `${page}.html`;
+document.querySelectorAll('.main-nav .nav-link').forEach(link => {
+  const isCurrent = link.getAttribute('href') === currentPage || (page === 'home' && link.getAttribute('href') === 'index.html');
+  link.classList.toggle('active', isCurrent);
+  if (isCurrent) link.setAttribute('aria-current', 'page');
+});
 
 let toastTimer;
 function showToast(message) {
+  if (!toast) return;
   toast.textContent = message;
   toast.classList.add('show');
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => toast.classList.remove('show'), 3200);
 }
 
-document.querySelector('#newsletter-form').addEventListener('submit', event => {
+const newsletterForm = document.querySelector('#newsletter-form');
+if (newsletterForm) newsletterForm.addEventListener('submit', event => {
   event.preventDefault();
   document.querySelector('#newsletter-message').textContent = 'Thanks! This demo form does not send or store your email yet.';
   event.currentTarget.reset();
+});
+
+const contactForm = document.querySelector('#contact-form');
+if (contactForm) contactForm.addEventListener('submit', event => {
+  event.preventDefault();
+  const feedback = document.querySelector('#contact-feedback');
+  if (feedback) feedback.textContent = 'Your details passed the form checks, but your message was not sent. This demo is not connected to an email service.';
 });
 
 renderHomes();
