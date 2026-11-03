@@ -36,6 +36,11 @@ room-listings.png   Room listings screenshot
 about-limlodge.png  About page screenshot
 how-it-works.png    Services screenshot
 contact-footer.png  Contact and footer screenshot
+limlodge-home-full.png      Full home page screenshot
+limlodge-about-full.png     Full About Us page screenshot
+limlodge-services-full.png  Full Our Services page screenshot
+limlodge-contact-full.png   Full Contact Us page screenshot
+limlodge-rooms-full.png     Full Search & Filter Rooms page screenshot
 ```
 
 ## Features
@@ -53,26 +58,26 @@ Room names, photographs, locations, facilities, and rents are demonstration cont
 
 The contact form is not connected to an email service. After a valid submission, it tells the visitor that the message was not sent. The home page email sign-up is also a demonstration and does not store or send email addresses.
 
-## Screenshots
+## Full page screenshots
 
-These images show examples of the website’s pages and sections:
+The screenshots show each page from its header through to its footer.
 
-### Home page and room search
+### Home
 
-![LIMLODGE home page and room search](homepage.png)
-
-### Room listings
-
-![LIMLODGE student room listings](room-listings.png)
+![Full LIMLODGE home page](limlodge-home-full.png)
 
 ### About Us
 
-![About LIMLODGE](about-limlodge.png)
+![Full LIMLODGE About Us page](limlodge-about-full.png)
 
-### How it works
+### Our Services
 
-![How the website works](how-it-works.png)
+![Full LIMLODGE Our Services page](limlodge-services-full.png)
 
-### Contact and footer
+### Contact Us
 
-![LIMLODGE contact section and footer](contact-footer.png)
+![Full LIMLODGE Contact Us page](limlodge-contact-full.png)
+
+### Search & Filter Rooms
+
+![Full LIMLODGE Search and Filter Rooms page](limlodge-rooms-full.png)
