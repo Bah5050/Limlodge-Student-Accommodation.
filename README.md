@@ -30,6 +30,7 @@ contact.html        Contact Us page
 rooms.html          Search and Filter Rooms page
 styles.css          Shared styles and responsive layouts
 script.js           Room listings, search, filters, and page interactions
+about-room-photo.png Room photo used on the About Us page
 README.md           Project guide
 homepage.png        Home page screenshot
 room-listings.png   Room listings screenshot
@@ -68,7 +69,7 @@ The screenshots show each page from its header through to its footer.
 
 ### About Us
 
-![Full LIMLODGE About Us page](limlodge-about-full.png)
+![Room photo shown on the LIMLODGE About Us page](about-room-photo.png)
 
 ### Our Services
 
