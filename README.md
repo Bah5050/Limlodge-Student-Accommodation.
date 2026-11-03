@@ -38,7 +38,7 @@ about-limlodge.png  About page screenshot
 how-it-works.png    Services screenshot
 contact-footer.png  Contact and footer screenshot
 limlodge-home-full.png      Full home page screenshot
-limlodge-about-full.png     Full About Us page screenshot
+limlodge-about-full.jpg     Full About Us page screenshot
 limlodge-services-full.png  Full Our Services page screenshot
 limlodge-contact-full.png   Full Contact Us page screenshot
 limlodge-rooms-full.png     Full Search & Filter Rooms page screenshot
@@ -69,7 +69,7 @@ The screenshots show each page from its header through to its footer.
 
 ### About Us
 
-![Room photo shown on the LIMLODGE About Us page](about-room-photo.png)
+![Full LIMLODGE About Us page](limlodge-about-full.jpg)
 
 ### Our Services
 
